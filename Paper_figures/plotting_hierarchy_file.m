@@ -1,4 +1,4 @@
-function [mineralA,transcriptsA,DNA_totA,P_total,C_14_min,ty,CUE_G,CUE_E,CUE_M,CUE_T,CUE_ET,CUE_EM,CUE_EG] = plotting_hierarchy_file(p,s)
+function [mineralA,transcriptsA,DNA_totA,P_total,C_14_min,ty,C_cum,CUE_E,CUE_M,CUE_T,CUE_ET,CUE_EM,CUE_EG] = plotting_hierarchy_file(p,s)
 
 %% Define fixed parameters %%
 
@@ -147,7 +147,7 @@ tspan   = [0 30];
 
 abstol = 1e-9;
 reltol = 1e-7;
-o_opts = odeset('AbsTol',abstol,'RelTol',reltol,'Events',@stopevent,'NonNegative',1:5); % 'Events',@stopevent);%,'NonNegative',1:7);
+o_opts = odeset('AbsTol',abstol,'RelTol',reltol,'Events',@stopevent,'NonNegative',1:6); % 'Events',@stopevent);%,'NonNegative',1:7);
   
 K_F   = q(11);
 n_F   = q(12);
@@ -173,6 +173,7 @@ c(2) = 0;                       % Active 14C_DNA _tfdA  [mmolC g-1]: DNA^ac
 c(3) = 0;                       % NER pool [mmol C g-1]
 c(4) = C_L0;                    % MCPA in solution (mass per volume of water) (mmol C cm^(-3))
 c(5) = 0;                       % Total CO2 [mmolC g-1]   
+c(6) = 0;                       % Initial cumulative pesticide-derived C in the biomass
 
 %% Running ode %%
        
@@ -218,6 +219,7 @@ end
     NER     = cu(:,3);  % [mmol C g-1]
     P       = cu(:,4);  % [mmol C cm-3]
     CO2     = cu(:,5);  % [mmol C g-1]
+    R       = cu(:,6);  % [mmol C g-1]
     
         Initial     = C_tot*q(8);    % [mmol C g-1]
         alpha       = q(9);
@@ -230,8 +232,9 @@ end
     transcriptsA (:,1)   = RNA.*(DNA_a*f_1^(-1));           % [transcripts g-1]
     DNA_totA (:,1)       = (DNA_a)*f_1^(-1);                % [gene g-1]
     P_total (:,1)        = P.*th_V/rho_B+K_F.*P.^n_F;       % [mg C g-1]
-    C_14_min(:,1)        = (DNA_14)/C_14_MCPA;              % [-]
-
+    C_14_min(:,1)        = DNA_14.*100/Initial;             % [%]
+    C_cum(:,1)           = R.*100/Initial;                  % Cumulative pesticide-derived C in the biomass [%]
+    
 %% CUE %%
 
 % Constant %
@@ -263,8 +266,6 @@ r_decay         = DNA_14*a_a*AR;
 r_NER           = NER.*a_CO2.*AR; 
 
 % CUE %
-
-CUE_G  = 1-(r_respiration./(r_respiration+r_growth)); % Growth C use efficiency
 
 CUE_E  = DNA_14./(DNA_14+CO2); % Identical to CUE calculation based on experimental data
 

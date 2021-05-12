@@ -61,7 +61,7 @@ r_En = r_T - r_Ex;
 
 %% ---- vector fields = right hand sides of ODE system ---- %%
 
-vf_ = zeros(5,1);
+vf_ = zeros(6,1);
 
 % Active DNA_tfdA  - [mmol C g-1]
 vf_(1) = DNA_a*(mu_P) - r_En*DNA_a*AR - DNA_a*a_a*AR;
@@ -80,4 +80,6 @@ vf_(4) = -(mu_P*DNA_a*(th_V^(-1)*rho_B)*(Y_P^(-1)) + r_Ex*DNA_a*(th_V^(-1)*rho_B
 vf_(5)= a_14*DNA_a*mu_P*(1-Y_P)*Y_P^(-1) + NER*a_CO2*AR + ...
         r_En*DNA_14*AR + r_Ex*DNA_a*a_14*AR;
 
+% Cumulative pesticide-derived C in the biomass [mmol C g-1]
+vf_(6)= DNA_a*mu_P*a_14;
 end
